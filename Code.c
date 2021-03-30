@@ -1,7 +1,7 @@
 #include <kipr/wombat.h>
 //CONSTANTS TIME
 int startPVC = 2300;
-int quick_correct = 8;
+//SENSOR PORTS
 int r_sensor = 5;
 int l_sensor = 4;
 
@@ -9,12 +9,17 @@ int l_sensor = 4;
 int main()
 {
     start();
-    printf("Hello World\n");
     return 0;
 }
 
+void liftArm(){
+    enable_servos();
+    set_servo_position(0, 0);
+    msleep(1000);
+    disable_servos();
+}
 
-void armPVC(){
+void lowerArm(){
     enable_servos();
     set_servo_position(0, 1909);
     msleep(1000);
@@ -22,10 +27,16 @@ void armPVC(){
     disable_servos();
 }
 
+void armPVC(){
+    lowerArm();
+}
+
 void turn_left_back(int time){
     mav(0,-1500);
     mav(1, 1500);
     msleep(time);
+    stop();
+    msleep(1000);
 }
 
 void startPOS(){
@@ -38,23 +49,31 @@ void drive(int speed, int time){
     mav(0, speed);
     mav(1, speed);
     msleep(time);
+    stop();
+    msleep(1000);
 }
 void turn_right_back(int time){
   mav(0,500);
   mav(1,-500);
-  msleep(time);  
+  msleep(time);
+  stop();
+  msleep(1000);
 }
 
 void turn_left(int time){
     mav(0, -1500);
     mav(1, 1500);
     msleep(time);
+    stop();
+    msleep(1000);
 }
 
 void turn_right(int time){
     mav(0, 1000);
     mav(1, -1000);
     msleep(time);
+    stop();
+    msleep(1000);
 }
 
 void stop(){
@@ -65,32 +84,12 @@ void stop(){
 
 void pvc_pullout(){
     turn_right(150);
-    stop();
-    msleep(1000);
-    
     drive(1500, 800);
-    stop();
-    msleep(1000);
-    
     turn_right(500);
-    stop();
-    msleep(1000);
-    
     drive(1500, 500);
-    stop();
-    msleep(1000);
-    
     turn_right(500);
-    stop();
-    msleep(1000);
-    
     drive(1500, 500);
-    stop();
-    msleep(1000);
-    
     turn_left(200);
-    stop();
-    msleep(1000);
 }
 
 void lineFollower(int time){
@@ -111,9 +110,17 @@ void lineFollower(int time){
     }
 }
 
+void pvcPosition(){
+    drive(-1500, 500);//makes robot go backwards to get into position
+    turn_left(500);
+    drive(-1500, 1500);//pushes pvc
+    turn_left(100);//turns left to get pvc into position
+    liftArm();//lifts the arm
+    turn_right(100);
+    drive(1500, 1500);//puts robot into position to go the ramp
+}
 
 void start(){
-    
     enable_servos();
     set_servo_position(1, 0);
     msleep(1000);
@@ -125,8 +132,8 @@ void start(){
     armPVC();//lowers arm to get PVC
     stop();//turns off robot for 1second
     msleep(1000);
-    pvc_pullout();
-    lineFollower(1);
+    pvc_pullout();//set of movements to robot to pull pvc and to get into position
+    lineFollower(1);//line follower method to follow blacktape on the ground
 }
 
 
