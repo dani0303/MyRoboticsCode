@@ -1,7 +1,7 @@
 #include <kipr/wombat.h>
 //CONSTANTS TIME
 int startPVC = 2300;
-//SENSOR PORTS
+int quick_correct = 8;
 int r_sensor = 5;
 int l_sensor = 4;
 
@@ -9,14 +9,8 @@ int l_sensor = 4;
 int main()
 {
     start();
+    printf("Hello World\n");
     return 0;
-}
-
-void liftArm(){
-    enable_servos();
-    set_servo_position(0, 0);
-    msleep(1000);
-    disable_servos();
 }
 
 void lowerArm(){
@@ -27,16 +21,18 @@ void lowerArm(){
     disable_servos();
 }
 
-void armPVC(){
-    lowerArm();
+void liftArm(){
+    enable_servos();
+    set_servo_position(0, 0);
+    msleep(1000);
+    ao();
+    disable_servos();
 }
 
 void turn_left_back(int time){
     mav(0,-1500);
     mav(1, 1500);
     msleep(time);
-    stop();
-    msleep(1000);
 }
 
 void startPOS(){
@@ -49,59 +45,80 @@ void drive(int speed, int time){
     mav(0, speed);
     mav(1, speed);
     msleep(time);
-    stop();
-    msleep(1000);
 }
 void turn_right_back(int time){
   mav(0,500);
   mav(1,-500);
-  msleep(time);
-  stop();
-  msleep(1000);
+  msleep(time);  
 }
 
 void turn_left(int time){
     mav(0, -1500);
     mav(1, 1500);
     msleep(time);
-    stop();
-    msleep(1000);
 }
 
 void turn_right(int time){
     mav(0, 1000);
     mav(1, -1000);
     msleep(time);
-    stop();
-    msleep(1000);
 }
 
 void stop(){
     freeze(0);
     freeze(1);
     ao();
+    msleep(1000);
 }
 
 void pvc_pullout(){
     turn_right(150);
-    drive(1500, 800);
+    stop();
+    msleep(1000);
+    
+    drive(1500, 1250);
+    stop();
+    
     turn_right(500);
+    stop();
+    
     drive(1500, 500);
+    stop();
+    
     turn_right(500);
-    drive(1500, 500);
-    turn_left(200);
+    stop();
+    
+    drive(1500, 700);
+    stop();
+    
+    turn_left(300);
+    stop();
+    
 }
 
-void lineFollower(int time){
+void close_claw(){
+    enable_servos();
+    set_servo_position(1, 1720);
+    msleep(100);
+    disable_servos();
+}
+
+void lineFollower(float time){
     int counter = 0;
     while(counter <= 100 * time){
         if(analog(r_sensor) >= 3839){
-            turn_right(100);
-            drive(500, 15);
+            ao();
+            msleep(10);
+            turn_right(150);
+            ao();
+            msleep(10);
         }
         if(analog(l_sensor) >= 3839){
-            turn_left(100);
-            drive(500, 15);
+            ao();
+            msleep(10);
+            turn_left(150);
+            ao();
+            msleep(10);
         }
         else{
             drive(1000, 10 + (time*10));
@@ -110,17 +127,10 @@ void lineFollower(int time){
     }
 }
 
-void pvcPosition(){
-    drive(-1500, 500);//makes robot go backwards to get into position
-    turn_left(500);
-    drive(-1500, 1500);//pushes pvc
-    turn_left(100);//turns left to get pvc into position
-    liftArm();//lifts the arm
-    turn_right(100);
-    drive(1500, 1500);//puts robot into position to go the ramp
-}
+
 
 void start(){
+    
     enable_servos();
     set_servo_position(1, 0);
     msleep(1000);
@@ -128,12 +138,41 @@ void start(){
     
     startPOS();//move from start to PVC
     stop();//turns motor off for 1seconds
-    msleep(1000);
-    armPVC();//lowers arm to get PVC
+    lowerArm();//lowers arm to get PVC
     stop();//turns off robot for 1second
-    msleep(1000);
-    pvc_pullout();//set of movements to robot to pull pvc and to get into position
-    lineFollower(1);//line follower method to follow blacktape on the ground
+    pvc_pullout();
+    close_claw();
+    lineFollower(1);
+    
+    turn_right(350);
+    stop();
+    
+    drive(-1500, 1000);
+    stop();
+    
+    turn_right(1550);
+    stop();
+    
+    drive(-1500, 450);
+    stop();
+    
+    liftArm();
+    
+    turn_left(100);
+    stop();
+    
+    drive(1500, 1500);
+    stop();
+    
+    lineFollower(0.85);
+    
+    turn_left(600);
+    stop();
+    
+    drive(1500, 1300);
+    stop();
+    
+    turn_left(570);
+    stop();
+    
 }
-
-
