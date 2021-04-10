@@ -26,11 +26,15 @@ int main()
             stop();
             bridge_line_follower(2, black3);
             stop();
-            turn_left(195);
+            turn_left(180);
             stop();
             lower_claw();
             stop();
-            drive(500, 2500);
+            drive(500, 1750);
+            stop();
+            getPoms();
+            stop();
+            drive(-500, 2500);
             stop();
             shut_down_in(119000);
             break;
@@ -40,6 +44,39 @@ int main()
     return 0;
 }
 
+void clawStop(){
+    mav(3, 0);
+    msleep(500);
+}
+
+void getPoms(){
+    mav(3, -543);
+    msleep(4500);
+    
+    enable_servos();
+    set_servo_position(1, 500);
+    msleep(100);
+    disable_servos();
+    
+    ao();
+    msleep(500);
+    
+    mav(3, -543);
+    msleep(250);
+    clawStop();
+    
+    enable_servos();
+    set_servo_position(1, 1900);
+    msleep(100);
+    disable_servos();
+    
+    ao();
+    msleep(1000);
+    
+    mav(3, 543);
+    msleep(4500);
+    clawStop();
+}
 
 void lineRampFollower(int time, int value, int value2){
     int counter = 0;
@@ -270,10 +307,10 @@ void start(){
     drive(1500, 1000);
     stop();
     
-    turn_right(200);
+    turn_right(100);
     stop();
     
-    drive(1500, 1200);
+    drive(1500, 1250);
     stop();
     
     lineFollower(0.85);
@@ -298,7 +335,7 @@ void start(){
     drive(1500, 1600);
     stop();
     
-    turn_left(700);//750
+    turn_left(750);//750
     stop();
     
     drive(500, 1500);
