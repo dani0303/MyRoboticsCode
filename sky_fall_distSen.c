@@ -11,7 +11,6 @@ int black = 3500;
 int black2 = 3000;
 int black3 = 3700;
 int brown = 2800;
-int port = 0;
 
 
 
@@ -54,19 +53,6 @@ int main()
     }
     printf("Hello World\n");
     return 0;
-}
-
-void distance(int value){
-	int counter = 0;
-	while(counter <= 100){
-		if(analog(port) <= value){
-			drive(1500, 500);
-		}else{
-			stop();
-			break;
-		}
-		counter ++;
-	}
 }
 
 void clawStop(){
@@ -264,6 +250,13 @@ void pvc_pullout(){
     
 }
 
+void open_claw(){
+    enable_servos();
+    set_servo_position(1, 0);
+    msleep(100);
+    disable_servos();
+}
+
 void close_claw(){
     enable_servos();
     set_servo_position(1, 1720);
@@ -271,7 +264,35 @@ void close_claw(){
     disable_servos();
 }
 
-void lineFollower(float time){
+void line_distanceSensor(float time, int speed){
+	int counter = 0;
+    while(counter <= 100 * time){
+        if(analog(r_sensor) >= 3839){
+            ao();
+            msleep(10);
+            turn_right(150);
+            ao();
+            msleep(10);
+        }
+        if(analog(l_sensor) >= 3839){
+            ao();
+            msleep(10);
+            turn_left(150);
+            ao();
+            msleep(10);
+        }
+		if(analog(1) >= 900){
+			stop();
+			break;
+		}
+        else{
+            drive(speed, 10 + (time*10));
+        }
+        counter++;
+    }
+}
+
+void lineFollower(float time, int speed){//takes time and speed value to make it the robot detect the line
     int counter = 0;
     while(counter <= 100 * time){
         if(analog(r_sensor) >= 3839){
@@ -289,7 +310,7 @@ void lineFollower(float time){
             msleep(10);
         }
         else{
-            drive(1000, 10 + (time*10));
+            drive(speed, 10 + (time*10));
         }
         counter++;
     }
@@ -308,9 +329,10 @@ void start(){
     stop();//turns motor off for 1seconds
     lowerArm();//lowers arm to get PVC
     stop();//turns off robot for 1second
-    pvc_pullout();
     close_claw();
-    lineFollower(1);
+    stop();
+    pvc_pullout();
+    lineFollower(1, 1000);
     
     turn_right(350);
     stop();
@@ -332,13 +354,17 @@ void start(){
     drive(1500, 1000);
     stop();
     
-    turn_right(120);//100
+    turn_right(150);//100
     stop();
     
     drive(1500, 1100);
     stop();
     
-    lineFollower(0.85);
+    open_claw();
+    ao();
+    msleep(1500);
+    
+    line_distanceSensor(0.85, 500);
     
     turn_left(800);
     stop();
