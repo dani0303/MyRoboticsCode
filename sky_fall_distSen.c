@@ -11,6 +11,7 @@ int black = 3500;
 int black2 = 3000;
 int black3 = 3700;
 int brown = 2800;
+int port = 0;
 
 
 
@@ -53,6 +54,19 @@ int main()
     }
     printf("Hello World\n");
     return 0;
+}
+
+void distance(int value){
+	int counter = 0;
+	while(counter <= 100){
+		if(analog(port) <= value){
+			drive(1500, 500);
+		}else{
+			stop();
+			break;
+		}
+		counter ++;
+	}
 }
 
 void clawStop(){
