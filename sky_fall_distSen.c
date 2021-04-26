@@ -230,24 +230,11 @@ void pvc_pullout(){
     turn_right(350);
     stop();
     
-    drive(1500, 1250);
+    drive(1500, 2000);
     stop();
     
-    turn_right(500);
+    turn_right(3500);
     stop();
-    
-    drive(1500, 500);
-    stop();
-    
-    turn_right(700);
-    stop();
-    
-    drive(1500, 1050);
-    stop();
-    
-    turn_left(200);
-    stop();
-    
 }
 
 void open_claw(){
