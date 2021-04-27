@@ -18,7 +18,7 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) <= 3800){
+        if(analog(0) >= 3600){
             start();
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -226,14 +226,23 @@ void stop(){
     msleep(1000);
 }
 
+void distSensor(int value1, int value2, int time){
+    int counter = 0;
+    while(counter <= 100){
+        if(analog(3) >= value1){
+            drive(500, time*10);
+             if(analog(3) >= value2){
+            	 stop();
+                 counter = 100;
+        	}
+        }
+        counter ++;
+    }
+}
+
 void pvc_pullout(){
-    turn_right(350);
-    stop();
-    
-    drive(1500, 2000);
-    stop();
-    
-    turn_right(3500);
+    distSensor(1140, 1200, 200);
+    turn_left(500);
     stop();
 }
 
@@ -279,20 +288,20 @@ void line_distanceSensor(float time, int speed){
     }
 }
 
-void lineFollower(float time, int speed){//takes time and speed value to make it the robot detect the line
+void RlineFollower(float time, int speed){//takes time and speed value to make it the robot detect the line
     int counter = 0;
     while(counter <= 100 * time){
         if(analog(r_sensor) >= 3839){
             ao();
             msleep(10);
-            turn_right(150);
+            turn_right(50);
             ao();
             msleep(10);
         }
         if(analog(l_sensor) >= 3839){
             ao();
             msleep(10);
-            turn_left(150);
+            turn_left(50);
             ao();
             msleep(10);
         }
@@ -319,7 +328,13 @@ void start(){
     close_claw();
     stop();
     pvc_pullout();
-    lineFollower(1, 1000);
+    drive(-1500, 500);
+    stop();
+    turn_left(350);
+    stop();
+    drive(-1500, 2000);
+    stop();
+    RlineFollower(1, -700);
     
     turn_right(350);
     stop();
