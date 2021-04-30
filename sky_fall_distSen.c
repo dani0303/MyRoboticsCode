@@ -2,12 +2,11 @@
 //CONSTANTS TIME
 int startPVC = 2300;
 int quick_correct = 8;
-int backright_sensor = 3;
-int backleft_sensor = 2;
-int backSensor = 1;
+int r_sensor = 1;
+int l_sensor = 2;
+
 int Ramp_r_sensor = 4;
 int Ramp_l_sensor = 5;
-
 int black = 3500;
 int black2 = 3000;
 int black3 = 3700;
@@ -19,7 +18,7 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) <= 4000){
+        if(analog(0) <= 3800){
             start();
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -128,7 +127,6 @@ void lineRampFollower(int time, int value, int value2){
     }
 }
 
-
 void turnPosition(){
     drive(1500, 350);
     stop();
@@ -228,24 +226,28 @@ void stop(){
     msleep(1000);
 }
 
-void distSensor(int value1, int value2, int time){
-    int counter = 0;
-    while(counter <= 100){
-        if(analog(backSensor) >= value1){
-            drive(500, time*10);
-             if(analog(backSensor) >= value2){
-            	 stop();
-                 counter = 100;
-        	}
-        }
-        counter ++;
-    }
-}
-
 void pvc_pullout(){
-    distSensor(1000, 1300, 200);
-    turn_left(500);
+    turn_right(350);
     stop();
+    
+    drive(1500, 1250);
+    stop();
+    
+    turn_right(500);
+    stop();
+    
+    drive(1500, 500);
+    stop();
+    
+    turn_right(700);
+    stop();
+    
+    drive(1500, 1050);
+    stop();
+    
+    turn_left(200);
+    stop();
+    
 }
 
 void open_claw(){
@@ -262,7 +264,6 @@ void close_claw(){
     disable_servos();
 }
 
-/*
 void line_distanceSensor(float time, int speed){
 	int counter = 0;
     while(counter <= 100 * time){
@@ -290,27 +291,28 @@ void line_distanceSensor(float time, int speed){
         counter++;
     }
 }
-*/
 
-void RlineFollower(float time, int speed){//takes time and speed value to make it the robot detect the line
+void line_grd_follower(float time, int speed){//takes time and speed value to make it the robot detect the line
     int counter = 0;
     while(counter <= 100 * time){
-        if(analog(backright_sensor) >= 3839){
+        if(analog(r_sensor) >= 3800){//3839
             ao();
             msleep(10);
-            turn_right(50);
-            ao();
-            msleep(10);
-        }
-        if(analog(backleft_sensor) >= 3839){
-            ao();
-            msleep(10);
-            turn_left(50);
+            turn_right(150);
             ao();
             msleep(10);
         }
-        else{
-            drive(speed, 10 + (time*10));
+        if(analog(l_sensor) >= 3800){//3839
+            ao();
+            msleep(10);
+            turn_left(150);
+            ao();
+            msleep(10);
+        }
+        if(analog(3) >= 700){
+            drive(500, 10 + (time*10));
+        }else{
+            stop();
         }
         counter++;
     }
@@ -332,16 +334,9 @@ void start(){
     close_claw();
     stop();
     pvc_pullout();
-    drive(-1500, 500);
-    stop();
-    turn_left(350);
-    stop();
-    drive(-1500, 1500);
-    stop();
-    RlineFollower(1, -700);
-    stop();
+    line_grd_follower(1.5, 750);
     
-    turn_left(350);
+    turn_right(350);
     stop();
     
     drive(-1500, 1000);
@@ -371,7 +366,7 @@ void start(){
     ao();
     msleep(1500);
     
-    //line_distanceSensor(0.85, 500);
+    line_distanceSensor(0.85, 500);
     
     turn_left(800);
     stop();
