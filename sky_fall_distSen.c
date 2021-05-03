@@ -1,12 +1,11 @@
 #include <kipr/wombat.h>
 //CONSTANTS TIME
-int startPVC = 2300;
+int startPVC = 2500;
 int quick_correct = 8;
-int r_sensor = 1;
-int l_sensor = 2;
-
+int backSensor = 3;
 int Ramp_r_sensor = 4;
 int Ramp_l_sensor = 5;
+
 int black = 3500;
 int black2 = 3000;
 int black3 = 3700;
@@ -18,7 +17,9 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) <= 3800){
+        if(analog(0) <= 4000){
+            ao();
+            msleep(100);
             start();
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -127,6 +128,49 @@ void lineRampFollower(int time, int value, int value2){
     }
 }
 
+void arm_change(int op, int wp, int servoport, int speed) {   
+    //allows for the servo to change in any direction
+	if(op > wp){
+		while(op > wp){
+			if(op - wp < speed){
+				//just set the claw to the end position
+				set_servo_position(servoport, wp);
+				op = wp;
+			}else{
+				//increments the position
+				op -= speed;  
+
+				//sets the servo position to the incremented position
+                enable_servos();
+				set_servo_position(servoport, op);
+				msleep(100);
+                disable_servos();
+			}
+		}
+	}else{
+		while(wp > op){
+			 //if the position is less than one increment away from the wanted position
+			if(wp - op < speed){
+				//just set the claw to the end position
+                enable_servos();
+				set_servo_position(servoport, op); 
+                msleep(100);
+                disable_servos();
+				op = wp;
+			}else{
+				
+				//increments the position
+				op += speed;
+				//sets the servo position to the incremented position
+                enable_servos();
+				set_servo_position(servoport, op);
+				msleep(100);
+                disable_servos();
+			}
+		}
+	}
+}
+
 void turnPosition(){
     drive(1500, 350);
     stop();
@@ -170,19 +214,11 @@ void lower_claw(){
 }
 
 void lowerArm(){
-    enable_servos();
-    set_servo_position(0, 1909);
-    msleep(1000);
-    ao();
-    disable_servos();
+    arm_change(0, 1709, 0, 20);
 }
 
 void liftArm(){
-    enable_servos();
-    set_servo_position(0, 0);
-    msleep(1000);
-    ao();
-    disable_servos();
+    arm_change(1709, 0, 0, 20);
 }
 
 void turn_left_back(int time){
@@ -226,28 +262,24 @@ void stop(){
     msleep(1000);
 }
 
+void distSensor(int value1, int value2, int time){
+    int counter = 0;
+    while(counter <= 100){
+        if(analog(backSensor) >= value1){
+            drive(500, time*10);
+             if(analog(backSensor) >= value2){
+            	 stop();
+                 counter = 100;
+        	}
+        }
+        counter ++;
+    }
+}
+
 void pvc_pullout(){
-    turn_right(350);
-    stop();
-    
-    drive(1500, 1250);
-    stop();
-    
+    distSensor(1000, 800, 190);
     turn_right(500);
     stop();
-    
-    drive(1500, 500);
-    stop();
-    
-    turn_right(700);
-    stop();
-    
-    drive(1500, 1050);
-    stop();
-    
-    turn_left(200);
-    stop();
-    
 }
 
 void open_claw(){
@@ -264,68 +296,9 @@ void close_claw(){
     disable_servos();
 }
 
-void line_distanceSensor(float time, int speed){
-	int counter = 0;
-    while(counter <= 100 * time){
-        if(analog(r_sensor) >= 3839){
-            ao();
-            msleep(10);
-            turn_right(150);
-            ao();
-            msleep(10);
-        }
-        if(analog(l_sensor) >= 3839){
-            ao();
-            msleep(10);
-            turn_left(150);
-            ao();
-            msleep(10);
-        }
-		if(analog(1) >= 900){
-			stop();
-			break;
-		}
-        else{
-            drive(speed, 10 + (time*10));
-        }
-        counter++;
-    }
-}
-
-void line_grd_follower(float time, int speed){//takes time and speed value to make it the robot detect the line
-    int counter = 0;
-    while(counter <= 100 * time){
-        if(analog(r_sensor) >= 3800){//3839
-            ao();
-            msleep(10);
-            turn_right(150);
-            ao();
-            msleep(10);
-        }
-        if(analog(l_sensor) >= 3800){//3839
-            ao();
-            msleep(10);
-            turn_left(150);
-            ao();
-            msleep(10);
-        }
-        if(analog(3) >= 700){
-            drive(500, 10 + (time*10));
-        }else{
-            stop();
-        }
-        counter++;
-    }
-}
-
-
-
 void start(){
     
-    enable_servos();
-    set_servo_position(1, 0);
-    msleep(1000);
-    disable_servos();
+    arm_change(0, 0, 0, 30);
     
     startPOS();//move from start to PVC
     stop();//turns motor off for 1seconds
@@ -334,9 +307,16 @@ void start(){
     close_claw();
     stop();
     pvc_pullout();
-    line_grd_follower(1.5, 750);
+    drive(900, 1500);
+    stop();
+    turn_right(750);
+    stop();
+    drive(900, 500);
+    stop();
+    //RlineFollower(1, -700);
+    stop();
     
-    turn_right(350);
+    turn_left(350);
     stop();
     
     drive(-1500, 1000);
@@ -366,7 +346,7 @@ void start(){
     ao();
     msleep(1500);
     
-    line_distanceSensor(0.85, 500);
+    //line_distanceSensor(0.85, 500);
     
     turn_left(800);
     stop();
