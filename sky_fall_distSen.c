@@ -3,8 +3,8 @@
 int startPVC = 2500;
 int quick_correct = 8;
 int backSensor = 3;
-int Ramp_r_sensor = 4;
-int Ramp_l_sensor = 5;
+int Ramp_r_sensor = 1;
+int Ramp_l_sensor = 2;
 
 int black = 3500;
 int black2 = 3000;
@@ -21,6 +21,8 @@ int main()
             ao();
             msleep(100);
             start();
+            pvc_position_sequence();
+            /*
 			lineRampFollower(7, black, black2);
             turnPosition();
             drive(1500, 500);
@@ -47,6 +49,7 @@ int main()
             //set_servo_position(1, 0);
             //msleep(100);
             //disable_servos();
+            */
             ao();
             shut_down_in(119000);
             break;
@@ -296,6 +299,29 @@ void close_claw(){
     disable_servos();
 }
 
+void line_grd_follower(float time, int sensor1, int sensor2){//takes time and speed value to make it the robot detect the line
+    int counter = 0;
+    while(counter <= 100 * time){
+        if(analog(Ramp_r_sensor) >= sensor1){//3839
+            ao();
+            msleep(10);
+            turn_right(150);
+            ao();
+            msleep(10);
+        }
+        if(analog(Ramp_l_sensor) >= sensor2){//3839
+            ao();
+            msleep(10);
+            turn_left(150);
+            ao();
+            msleep(10);
+        }else{
+            drive(500, 10 + (time*10));
+        }
+        counter++;
+    }
+}
+
 void start(){
     
     arm_change(0, 0, 0, 30);
@@ -307,72 +333,33 @@ void start(){
     close_claw();
     stop();
     pvc_pullout();
-    drive(900, 1500);
+    drive(900, 2200);
     stop();
-    turn_right(750);
-    stop();
-    drive(900, 500);
-    stop();
-    //RlineFollower(1, -700);
+    turn_right(1200);
     stop();
     
-    turn_left(350);
+    distSensor(2500, 890, 550);
+    printf("Hello");
     stop();
     
-    drive(-1500, 1000);
-    stop();
-    
-    turn_right(1550);
-    stop();
-    
-    drive(-1500, 1000);
-    stop();
-    
-    liftArm();
-    
-    turn_left(100);
-    stop();
-    
-    drive(1500, 1000);
-    stop();
-    
-    turn_right(150);//100
-    stop();
-    
-    drive(1500, 1100);
-    stop();
-    
-    open_claw();
-    ao();
-    msleep(1500);
-    
-    //line_distanceSensor(0.85, 500);
-    
-    turn_left(800);
-    stop();
-    
-    ao();
-    msleep(100);
-    
-    enable_servos();
-    set_servo_position(1, 0);
-    msleep(100);
-    
-    set_servo_position(0, 500);
-    msleep(100);
-    disable_servos();
-    
-    ao();
-    msleep(100);
-    
-    drive(1500, 1775);
-    stop();
-    
-    turn_left(790);//750
-    stop();
-    
-    drive(500, 1800);
+    turn_left(500);
     stop();
     msleep(1000);
     
+    line_grd_follower(1.5, 3800, 3700);
+    stop();
+}
+
+void pvc_position_sequence(){
+    int counter = 0;
+    while(counter <= 100){
+        if(analog(backSensor) >= 600){
+        	drive(-1500, counter*100);
+    	}
+        if(analog(backSensor) >= 500){
+        	stop();
+            break;
+    	}
+        counter ++;
+    }
 }
