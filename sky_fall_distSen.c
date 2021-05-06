@@ -3,6 +3,7 @@
 int startPVC = 2500;
 int quick_correct = 8;
 int backSensor = 3;
+int frontSensor = 4;
 int Ramp_r_sensor = 1;
 int Ramp_l_sensor = 2;
 
@@ -17,11 +18,36 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) <= 4000){
+        if(analog(0) >= 4000){
             ao();
             msleep(100);
             start();
             pvc_position_sequence();
+            stop();
+            turn_right(1000, 750);
+            stop();
+            drive(-1500, 500);
+            stop();
+            turn_right(1000, 1200);
+            stop();
+            
+            drive(-1500, 200);
+            stop();
+            
+            enable_servos();
+            set_servo_position(0, 0);
+            msleep(100);
+            disable_servos();
+            
+            stop();
+            drive(1500, 500);
+            stop();
+            turn_right(500, 200);
+            stop();
+            arm_change(1800, 0, 1, 70);
+            stop();
+            line_follower_distantSensor(3.5, 3800, 3700, 1817);
+            stop();
             /*
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -58,7 +84,6 @@ int main()
     printf("Hello World\n");
     return 0;
 }
-
 void clawStop(){
     mav(3, 0);
     msleep(500);
@@ -100,7 +125,7 @@ void lineRampFollower(int time, int value, int value2){
             //turn right
             ao();
             msleep(10);
-            turn_right(150);
+            turn_right(1000, -1000,150);
             ao();
             msleep(10);
         }
@@ -108,7 +133,7 @@ void lineRampFollower(int time, int value, int value2){
             //turn left
             ao();
             msleep(10);
-            turn_left(150);
+            turn_left(1000, 150);
             ao();
             msleep(10);
         }
@@ -178,19 +203,19 @@ void turnPosition(){
     drive(1500, 350);
     stop();
     
-    turn_left(300);
+    turn_left(1000, 300);
     stop();
     
     drive(1500, 550);
     stop();
     
-    turn_left(200);
+    turn_left(1000, 200);
     stop();
     
     drive(1500, 300);
     stop();
     
-    turn_left(250);
+    turn_left(1000, 250);
     stop();
 }
 
@@ -201,7 +226,7 @@ void bridge_line_follower(int time, int value){
             printf("drive ");
             drive(1500, time*50);
         }else{
-            turn_right(50);
+            turn_right(1000, 50);
             drive(1500, 1000);
         }
         printf("counter ");
@@ -241,21 +266,21 @@ void drive(int speed, int time){
     mav(1, speed);
     msleep(time);
 }
-void turn_right_back(int time){
+void turn_right_back(int power, int time){
   mav(0,500);
   mav(1,-500);
   msleep(time);  
 }
 
-void turn_left(int time){
-    mav(0, -1500);
-    mav(1, 1500);
+void turn_left(int power, int time){
+    mav(0, -power);
+    mav(1, power);
     msleep(time);
 }
 
-void turn_right(int time){
-    mav(0, 1000);
-    mav(1, -1000);
+void turn_right(int power, int time){
+    mav(0, power);
+    mav(1, -power);
     msleep(time);
 }
 
@@ -279,9 +304,10 @@ void distSensor(int value1, int value2, int time){
     }
 }
 
+
 void pvc_pullout(){
     distSensor(1000, 800, 190);
-    turn_right(500);
+    turn_right(1000, 500);
     stop();
 }
 
@@ -305,18 +331,44 @@ void line_grd_follower(float time, int sensor1, int sensor2){//takes time and sp
         if(analog(Ramp_r_sensor) >= sensor1){//3839
             ao();
             msleep(10);
-            turn_right(150);
+            turn_right(1000, 150);
             ao();
             msleep(10);
         }
         if(analog(Ramp_l_sensor) >= sensor2){//3839
             ao();
             msleep(10);
-            turn_left(150);
+            turn_left(1000, 150);
             ao();
             msleep(10);
         }else{
             drive(500, 10 + (time*10));
+        }
+        counter++;
+    }
+}
+
+void line_follower_distantSensor(float time, int sensor1, int sensor2, int distance){
+    int counter = 0;
+    while(counter <= 100 * time){
+        if(analog(Ramp_r_sensor) >= sensor1){//3839
+            ao();
+            msleep(10);
+            turn_right(1000, 150);
+            ao();
+            msleep(10);
+        }
+        if(analog(Ramp_l_sensor) >= sensor2){//3839
+            ao();
+            msleep(10);
+            turn_left(1000, 150);
+            ao();
+            msleep(10);
+        }else{
+            drive(500, 10 + (time*1000));
+        }
+        if(analog(backSensor) <= distance){
+            stop();
         }
         counter++;
     }
@@ -335,20 +387,31 @@ void start(){
     pvc_pullout();
     drive(900, 2200);
     stop();
-    turn_right(1200);
+    turn_right(1000, 1200);
     stop();
     
-    distSensor(2500, 890, 550);
+    distSensor(2400, 890, 550);
     printf("Hello");
     stop();
     
-    turn_left(500);
+    turn_left(1000, 500);
     stop();
     msleep(1000);
     
     line_grd_follower(1.5, 3800, 3700);
     stop();
 }
+
+/*
+void setUP(){
+    int counter =0;
+    while(counter <= 1000){
+        if(analog(Ramp_l_sensor) >= 3000){
+            drive
+        counter ++;
+    }
+}
+*/
 
 void pvc_position_sequence(){
     int counter = 0;
