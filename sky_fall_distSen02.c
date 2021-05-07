@@ -23,31 +23,9 @@ int main()
             msleep(100);
             start();
             pvc_position_sequence();
-            stop();
-            turn_right(1000, 750);
-            stop();
-            drive(-1500, 500);
-            stop();
-            turn_right(1000, 1200);
-            stop();
+            drop_pvc();
+            ramp_position_sequence();
             
-            drive(-1500, 200);
-            stop();
-            
-            enable_servos();
-            set_servo_position(0, 0);
-            msleep(100);
-            disable_servos();
-            
-            stop();
-            drive(1500, 500);
-            stop();
-            turn_right(500, 200);
-            stop();
-            arm_change(1800, 0, 1, 70);
-            stop();
-            line_follower_distantSensor(3.5, 3800, 3700, 1817);
-            stop();
             /*
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -84,6 +62,63 @@ int main()
     printf("Hello World\n");
     return 0;
 }
+
+void lower_claw(){
+   	mav(3, -543);
+    msleep(900);
+    ao();
+    msleep(1000);
+}
+
+void lowerArm(){
+    arm_change(0, 1709, 0, 20);
+}
+
+void liftArm(){
+    arm_change(1709, 0, 0, 20);
+}
+
+void turn_left_back(int time){
+    mav(0,-1500);
+    mav(1, 1500);
+    msleep(time);
+}
+
+void startPOS(){
+    mav(0, -750);
+    mav(1, -750);
+    msleep(startPVC);
+}
+
+void drive(int speed, int time){
+    mav(0, speed);
+    mav(1, speed);
+    msleep(time);
+}
+void turn_right_back(int power, int time){
+  mav(0,500);
+  mav(1,-500);
+  msleep(time);  
+}
+
+void turn_left(int power, int time){
+    mav(0, -power);
+    mav(1, power);
+    msleep(time);
+}
+
+void turn_right(int power, int time){
+    mav(0, power);
+    mav(1, -power);
+    msleep(time);
+}
+
+void stop(){
+    mav(0, 0);
+    mav(1, 0);
+    msleep(1000);
+}
+
 void clawStop(){
     mav(3, 0);
     msleep(500);
@@ -118,6 +153,46 @@ void getPoms(){
     clawStop();
 }
 
+void turnPosition(){
+    drive(1500, 350);
+    stop();
+    
+    turn_left(1000, 300);
+    stop();
+    
+    drive(1500, 550);
+    stop();
+    
+    turn_left(1000, 200);
+    stop();
+    
+    drive(1500, 300);
+    stop();
+    
+    turn_left(1000, 250);
+    stop();
+}
+
+void pvc_pullout(){
+    distSensor(1000, 800, 190);
+    turn_right(1000, 500);
+    stop();
+}
+
+void open_claw(){
+    enable_servos();
+    set_servo_position(1, 0);
+    msleep(100);
+    disable_servos();
+}
+
+void close_claw(){
+    enable_servos();
+    set_servo_position(1, 1720);
+    msleep(100);
+    disable_servos();
+}
+
 void lineRampFollower(int time, int value, int value2){
     int counter = 0;
     while(counter <= time){
@@ -125,7 +200,7 @@ void lineRampFollower(int time, int value, int value2){
             //turn right
             ao();
             msleep(10);
-            turn_right(1000, -1000,150);
+            turn_right(1000, 150);
             ao();
             msleep(10);
         }
@@ -199,25 +274,6 @@ void arm_change(int op, int wp, int servoport, int speed) {
 	}
 }
 
-void turnPosition(){
-    drive(1500, 350);
-    stop();
-    
-    turn_left(1000, 300);
-    stop();
-    
-    drive(1500, 550);
-    stop();
-    
-    turn_left(1000, 200);
-    stop();
-    
-    drive(1500, 300);
-    stop();
-    
-    turn_left(1000, 250);
-    stop();
-}
 
 void bridge_line_follower(int time, int value){
     int counter = 0;
@@ -234,61 +290,6 @@ void bridge_line_follower(int time, int value){
     }
 }
 
-void lower_claw(){
-   	mav(3, -543);
-    msleep(900);
-    ao();
-    msleep(1000);
-}
-
-void lowerArm(){
-    arm_change(0, 1709, 0, 20);
-}
-
-void liftArm(){
-    arm_change(1709, 0, 0, 20);
-}
-
-void turn_left_back(int time){
-    mav(0,-1500);
-    mav(1, 1500);
-    msleep(time);
-}
-
-void startPOS(){
-    mav(0, -750);
-    mav(1, -750);
-    msleep(startPVC);
-}
-
-void drive(int speed, int time){
-    mav(0, speed);
-    mav(1, speed);
-    msleep(time);
-}
-void turn_right_back(int power, int time){
-  mav(0,500);
-  mav(1,-500);
-  msleep(time);  
-}
-
-void turn_left(int power, int time){
-    mav(0, -power);
-    mav(1, power);
-    msleep(time);
-}
-
-void turn_right(int power, int time){
-    mav(0, power);
-    mav(1, -power);
-    msleep(time);
-}
-
-void stop(){
-    mav(0, 0);
-    mav(1, 0);
-    msleep(1000);
-}
 
 void distSensor(int value1, int value2, int time){
     int counter = 0;
@@ -304,26 +305,6 @@ void distSensor(int value1, int value2, int time){
     }
 }
 
-
-void pvc_pullout(){
-    distSensor(1000, 800, 190);
-    turn_right(1000, 500);
-    stop();
-}
-
-void open_claw(){
-    enable_servos();
-    set_servo_position(1, 0);
-    msleep(100);
-    disable_servos();
-}
-
-void close_claw(){
-    enable_servos();
-    set_servo_position(1, 1720);
-    msleep(100);
-    disable_servos();
-}
 
 void line_grd_follower(float time, int sensor1, int sensor2){//takes time and speed value to make it the robot detect the line
     int counter = 0;
@@ -374,6 +355,20 @@ void line_follower_distantSensor(float time, int sensor1, int sensor2, int dista
     }
 }
 
+void pvc_position_sequence(){
+    int counter = 0;
+    while(counter <= 100){
+        if(analog(backSensor) >= 600){
+        	drive(-1500, counter*100);
+    	}
+        if(analog(backSensor) >= 500){
+        	stop();
+            break;
+    	}
+        counter ++;
+    }
+}
+
 void start(){
     
     arm_change(0, 0, 0, 30);
@@ -402,6 +397,36 @@ void start(){
     stop();
 }
 
+void drop_pvc(){
+    stop();
+    turn_right(1000, 750);
+    stop();
+    drive(-1500, 500);
+    stop();
+    turn_right(1000, 1200);
+    stop();
+    
+    drive(-1500, 200);
+    stop();
+    
+    enable_servos();
+    set_servo_position(0, 0);
+    msleep(100);
+    disable_servos();
+}
+
+void ramp_position_sequence(){
+    stop();
+    drive(1500, 500);
+    stop();
+    turn_right(500, 200);
+    stop();
+    arm_change(1800, 0, 1, 70);
+    stop();
+    line_follower_distantSensor(3.5, 3800, 3700, 1817);
+    stop();
+}
+
 /*
 void setUP(){
     int counter =0;
@@ -412,17 +437,3 @@ void setUP(){
     }
 }
 */
-
-void pvc_position_sequence(){
-    int counter = 0;
-    while(counter <= 100){
-        if(analog(backSensor) >= 600){
-        	drive(-1500, counter*100);
-    	}
-        if(analog(backSensor) >= 500){
-        	stop();
-            break;
-    	}
-        counter ++;
-    }
-}
