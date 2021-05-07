@@ -25,7 +25,7 @@ int main()
             pvc_position_sequence();
             drop_pvc();
             ramp_position_sequence();
-            
+            up_the_ramp();
             /*
 			lineRampFollower(7, black, black2);
             turnPosition();
@@ -116,6 +116,7 @@ void turn_right(int power, int time){
 void stop(){
     mav(0, 0);
     mav(1, 0);
+    mav(3, 0);
     msleep(1000);
 }
 
@@ -174,7 +175,7 @@ void turnPosition(){
 }
 
 void pvc_pullout(){
-    distSensor(1000, 800, 190);
+    distSensor(backSensor, 1000, 800, 190);
     turn_right(1000, 500);
     stop();
 }
@@ -291,12 +292,12 @@ void bridge_line_follower(int time, int value){
 }
 
 
-void distSensor(int value1, int value2, int time){
+void distSensor(int port, int value1, int value2, int time){
     int counter = 0;
     while(counter <= 100){
-        if(analog(backSensor) >= value1){
+        if(analog(port) >= value1){
             drive(500, time*10);
-             if(analog(backSensor) >= value2){
+             if(analog(port) >= value2){
             	 stop();
                  counter = 100;
         	}
@@ -322,7 +323,15 @@ void line_grd_follower(float time, int sensor1, int sensor2){//takes time and sp
             turn_left(1000, 150);
             ao();
             msleep(10);
-        }else{
+        }
+        /*
+        if(analog(Ramp_l_sensor) >= sensor2){
+            if(analog(Ramp_r_sensor) >= sensor1){
+                drive(1500, 500);
+            }
+        }
+        */
+        else{
             drive(500, 10 + (time*10));
         }
         counter++;
@@ -345,11 +354,13 @@ void line_follower_distantSensor(float time, int sensor1, int sensor2, int dista
             turn_left(1000, 150);
             ao();
             msleep(10);
-        }else{
-            drive(500, 10 + (time*1000));
         }
         if(analog(backSensor) <= distance){
             stop();
+            break;
+        }
+        else{
+            drive(500, 10 + (time*1000));
         }
         counter++;
     }
@@ -385,7 +396,7 @@ void start(){
     turn_right(1000, 1200);
     stop();
     
-    distSensor(2400, 890, 550);
+    distSensor(backSensor, 2000, 890, 550);
     printf("Hello");
     stop();
     
@@ -403,7 +414,7 @@ void drop_pvc(){
     stop();
     drive(-1500, 500);
     stop();
-    turn_right(1000, 1200);
+    turn_right(700, 2000);
     stop();
     
     drive(-1500, 200);
@@ -419,21 +430,38 @@ void ramp_position_sequence(){
     stop();
     drive(1500, 500);
     stop();
-    turn_right(500, 200);
+    turn_left(500, 1000);
+    stop();
+    drive(500, 500);
     stop();
     arm_change(1800, 0, 1, 70);
     stop();
-    line_follower_distantSensor(3.5, 3800, 3700, 1817);
+    turn_right(500, 300);
+    stop();
+    line_grd_follower(0.90, 3800, 3700);
+    stop();
+    msleep(1000);
+    drive(500, 2500);
+    line_grd_follower(0.95, 3800, 3700);
+    stop();
+    msleep(1000);
+    distSensor(frontSensor, 1600, 1900, 100);
+    if(analog(frontSensor) >= 2800){
+        printf("fail safe");
+        turn_left(500, 500);
+    }else{
+        stop();
+    }
+    turn_left(500, 2000);
+    stop();
+    distSensor(frontSensor, 800, 1600, 220);
+    stop();
+    turn_left(500, 2000);
+    stop();
+    distSensor(frontSensor, 1100, 2800, 100);
     stop();
 }
 
-/*
-void setUP(){
-    int counter =0;
-    while(counter <= 1000){
-        if(analog(Ramp_l_sensor) >= 3000){
-            drive
-        counter ++;
-    }
+void up_the_ramp(){
+    lineRampFollower(7, black, black2);
 }
-*/
