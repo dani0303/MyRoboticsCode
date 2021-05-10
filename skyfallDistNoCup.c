@@ -395,6 +395,11 @@ void drop_pvc(){
     turn_right(500, 2200);
     stop();
 }
+/*
+still need to work on getting the robot to go up the ramp
+but so far it's going pretty well just need to keep it going
+also need to back up to make the robot clear the turn
+*/
 
 void ramp_position_sequence(){
     //arm_change(1730, 0, 1, 30);
