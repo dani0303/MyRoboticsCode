@@ -22,10 +22,10 @@ int main()
             ao();
             msleep(100);
             start();
-            //pvc_position_sequence();
             drop_pvc();
             ramp_position_sequence();
-            //up_the_ramp();
+            up_the_ramp();
+            go_to_well();
             ao();
             shut_down_in(119000);
             break;
@@ -302,14 +302,14 @@ void line_grd_follower(float time, int sensor1, int sensor2){//takes time and sp
         if(analog(Ramp_r_sensor) >= sensor1){//3839
             ao();
             msleep(10);
-            turn_right(1000, 150);
+            turn_right(500, 150);
             ao();
             msleep(10);
         }
         if(analog(Ramp_l_sensor) >= sensor2){//3839
             ao();
             msleep(10);
-            turn_left(1000, 150);
+            turn_left(500, 150);
             ao();
             msleep(10);
         }
@@ -375,7 +375,11 @@ void start(){
     
     startPOS();//move from start to PVC
     stop();//turns motor off for 1seconds
-    lowerArm();//lowers arm to get PVC
+    enable_servos();
+    set_servo_position(0, 1700);
+    msleep(100);
+    disable_servos();
+    
     stop();//turns off robot for 1second
     close_claw();
     stop();
@@ -422,11 +426,34 @@ void ramp_position_sequence(){
     stop();
     drive(500, 1500);
     stop();
+    turn_left(500, 1750);//original value 1000
+    stop();
     
 }
 
 void up_the_ramp(){
-    drive(500, 1000);
+    drive(500, 5000);
+    line_grd_follower(1.0, 3700, 3500);
     stop();
-    lineRampFollower(7, black, black2);
+    drive(500, 3500);
+    stop();
+    distSensor(frontSensor, 900, 1010, 350);
+    stop();
+    turn_left(500, 500);
+    stop();
+    drive(500, 4000);
+    stop();
+    turn_left(500, 1200);
+    stop();
+    drive(500, 1500);
+    stop();
+    turn_left(500, 1000);
+    stop();
+}
+
+void go_to_well(){
+    drive(500, 1500);
+    stop();
+    line_grd_follower(4.5, 3800, 3700);
+    stop();
 }
