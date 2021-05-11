@@ -18,7 +18,7 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) >= 4000){
+        if(analog(0) <= 4000){
             ao();
             msleep(100);
             start();
@@ -435,24 +435,35 @@ void up_the_ramp(){
     drive(500, 5000);
     line_grd_follower(1.0, 3700, 3500);
     stop();
+    turn_left(500, 200);
     drive(500, 3500);
     stop();
-    distSensor(frontSensor, 900, 1010, 350);
+    distSensor(frontSensor, 900, 1010, 250);
+    stop();
+    drive(-500, 500);
     stop();
     turn_left(500, 500);
     stop();
-    drive(500, 4000);
+    drive(500, 2200);
     stop();
-    turn_left(500, 1200);
+    turn_left(500, 1500);
     stop();
     drive(500, 1500);
-    stop();
-    turn_left(500, 1000);
     stop();
 }
 
 void go_to_well(){
+    stop();
+    drive(-500, 1000);
+    stop();
+    enable_servos();
+    set_servo_position(0, 0);
+    msleep(100);
+    disable_servos();
+    stop();
     drive(500, 1500);
+    stop();
+    turn_left(500, 1200);
     stop();
     line_grd_follower(4.5, 3800, 3700);
     stop();
