@@ -1,6 +1,6 @@
 #include <kipr/wombat.h>
 //CONSTANTS TIME
-int startPVC = 3000;
+int startPVC = 3200;
 int quick_correct = 8;
 int backSensor = 3;
 int frontSensor = 5;
@@ -18,7 +18,7 @@ int main()
 {
     int t = 0;
     while(t == 0){
-        if(analog(0) <= 4000){
+        if(analog(0) >= 4000){
             ao();
             msleep(100);
             start();
@@ -26,6 +26,7 @@ int main()
             ramp_position_sequence();
             up_the_ramp();
             go_to_well();
+            get_poms();
             ao();
             shut_down_in(119000);
             break;
@@ -48,6 +49,21 @@ void lowerArm(){
 
 void liftArm(){
     arm_change(1709, 0, 0, 20);
+}
+
+void lower_claw_clear(){
+    mav(3, -200);
+    msleep(1900);
+}
+
+void lower_claw_pit(int time){
+    mav(3, -200);
+    msleep(time);
+    stop();
+}
+
+void closeClaw(){
+    arm_change(0, 1200, 1, 30);
 }
 
 void turn_left_back(int time){
@@ -369,6 +385,19 @@ void pvc_position_sequence(){
     }
 }
 
+void move_until_sensor_over_poms(){
+    int counter = 0;
+    while(counter <= 100){
+        if(analog(Ramp_l_sensor) >= 3600){
+            counter = 101;
+            stop();
+        }else{
+            drive(500, 200);
+        }
+        counter ++;
+    }
+}
+
 void start(){
     
     arm_change(0, 0, 0, 30);
@@ -383,7 +412,7 @@ void start(){
     stop();//turns off robot for 1second
     close_claw();
     stop();
-    distSensor(backSensor, 1000, 600, 150);
+    distSensor(backSensor, 1000, 600, 200);
     stop();
 }
 
@@ -433,38 +462,53 @@ void ramp_position_sequence(){
 
 void up_the_ramp(){
     drive(500, 5000);
-    line_grd_follower(1.0, 3700, 3500);
-    stop();
-    turn_left(500, 200);
-    drive(500, 3500);
-    stop();
-    distSensor(frontSensor, 900, 1010, 250);
-    stop();
-    drive(-500, 500);
+    line_grd_follower(0.5, 3700, 3500);
     stop();
     turn_left(500, 500);
+    drive(500, 3500);
     stop();
-    drive(500, 2200);
+    distSensor(frontSensor, 900, 2300, 250);
+    stop();
+    turn_left(500, 200);
+    printf("Turn 1 \n");
+    stop();
+    
+    drive(-500, 500);
+    stop();
+    
+    enable_servos();
+    set_servo_position(0, 0);
+    msleep(100);
+    disable_servos();
+    
+    drive(500, 500);
+    stop();
+    turn_right(500, 800);
+    stop();
+    drive(-500, 1000);
+    stop();
+    turn_left(500, 900);
+    stop();
+    drive(500, 1000);
     stop();
     turn_left(500, 1500);
-    stop();
-    drive(500, 1500);
     stop();
 }
 
 void go_to_well(){
     stop();
-    drive(-500, 1000);
-    stop();
-    enable_servos();
-    set_servo_position(0, 0);
-    msleep(100);
-    disable_servos();
-    stop();
     drive(500, 1500);
     stop();
-    turn_left(500, 1200);
+    line_grd_follower(2.5, 3800, 3700);
     stop();
-    line_grd_follower(4.5, 3800, 3700);
+}
+void get_poms(){
+    turn_left(500, 300);
+    stop();
+    lower_claw_clear();
+    stop();
+    move_until_sensor_over_poms();
+    stop();
+    lower_claw_pit(500);
     stop();
 }
