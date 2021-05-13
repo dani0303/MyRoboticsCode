@@ -1,6 +1,6 @@
 #include <kipr/wombat.h>
 //CONSTANTS TIME
-int startPVC = 3200;
+int startPVC = 3000;
 int quick_correct = 8;
 int backSensor = 3;
 int frontSensor = 5;
@@ -44,16 +44,16 @@ void lower_claw(){
 }
 
 void lowerArm(){
-    arm_change(0, 1709, 0, 20);
+    arm_change(0, 2000, 0, 20);
 }
 
 void liftArm(){
     arm_change(1709, 0, 0, 20);
 }
 
-void lower_claw_clear(){
+void lower_claw_clear(int time){
     mav(3, -200);
-    msleep(1900);
+    msleep(time);
 }
 
 void lower_claw_pit(int time){
@@ -404,10 +404,13 @@ void start(){
     
     startPOS();//move from start to PVC
     stop();//turns motor off for 1seconds
+    
     enable_servos();
-    set_servo_position(0, 1700);
+    set_servo_position(0, 2047);
     msleep(100);
     disable_servos();
+    
+    //arm_change(0, 2047, 0, 30);
     
     stop();//turns off robot for 1second
     close_claw();
@@ -466,14 +469,14 @@ void up_the_ramp(){
     stop();
     turn_left(500, 500);
     drive(500, 3500);
+    //stop();
+    distSensor(frontSensor, 1000, 1500, 250);
     stop();
-    distSensor(frontSensor, 900, 2300, 250);
-    stop();
-    turn_left(500, 200);
+    turn_left(500, 350);
     printf("Turn 1 \n");
     stop();
     
-    drive(-500, 500);
+    drive(-500, 850);
     stop();
     
     enable_servos();
@@ -496,7 +499,6 @@ void up_the_ramp(){
 }
 
 void go_to_well(){
-    stop();
     drive(500, 1500);
     stop();
     line_grd_follower(2.5, 3800, 3700);
@@ -505,10 +507,18 @@ void go_to_well(){
 void get_poms(){
     turn_left(500, 300);
     stop();
-    lower_claw_clear();
+    lower_claw_clear(2200);
     stop();
     move_until_sensor_over_poms();
     stop();
-    lower_claw_pit(500);
+    lower_claw_pit(12500);
     stop();
+    arm_change(0, 1830, 1, 30);
+    stop();
+    mav(3, 200);
+    msleep(12900);
+    stop();
+    drive(-500, 2000);
+    stop();
+    //make robot back up more then open
 }
