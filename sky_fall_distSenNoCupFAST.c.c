@@ -1,3 +1,8 @@
+/*
+Created by Daniel Rodriguez
+Co-created by Vinny Phuc (Line Follower)
+*/
+
 #include <kipr/wombat.h>
 //CONSTANTS TIME
 int startPVC = 3000;
@@ -12,6 +17,15 @@ int black2 = 3000;
 int black3 = 3700;
 int brown = 2800;
 
+
+/*
+gotta fix the timing on the robot
+the time limit is 2 minutes
+the fix this I made the "stop" function
+take in a variable called time
+this will dictate how long it will
+wait
+*/
 
 
 int main()
