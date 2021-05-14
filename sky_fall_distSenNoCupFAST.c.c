@@ -1,6 +1,8 @@
 /*
 Created by Daniel Rodriguez
 Co-created by Vinny Phuc (Line Follower)
+This code will be used for the competition for May 15
+and will spend less time in order to be within the time frame
 */
 
 #include <kipr/wombat.h>
