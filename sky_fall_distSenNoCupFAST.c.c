@@ -403,7 +403,7 @@ void start(){
     arm_change(0, 0, 0, 30);
     
     startPOS();//move from start to PVC
-    stop(1000);//turns motor off for 1seconds
+    stop(500);//turns motor off for 1seconds
     
     enable_servos();
     set_servo_position(0, 2047);
@@ -412,24 +412,24 @@ void start(){
     
     //arm_change(0, 2047, 0, 30);
     
-    stop(1000);//turns off robot for 1second
+    stop(500);//turns off robot for 1second
     close_claw();
     stop(1000);
     distSensor(backSensor, 1000, 600, 200);
-    stop(1000);
+    stop(500);
 }
 
 void drop_pvc(){
     turn_right(1000, 500);
-    stop(1000);
+    stop(500);
     drive(500, 4000);
-    stop(1000);
+    stop(500);
     turn_right(1000, 1500);
-    stop(1000);
+    stop(500);
     move_until_sensor();
-    stop(1000);
+    stop(500);
     turn_right(500, 2200);
-    stop(1000);
+    stop(500);
 }
 /*
 still need to work on getting the robot to go up the ramp
@@ -445,11 +445,11 @@ void ramp_position_sequence(){
     disable_servos();
     stop(1000);
     distSensor(frontSensor, 1100, 1700, 200);
-    stop(1000);
+    stop(500);
     turn_left(500, 2000);
-    stop(1000);
+    stop(500);
     distSensor(frontSensor, 900, 1300, 450);
-    stop(1000);
+    stop(500);
     turn_left(500, 750);
     stop(1000);
     drive(500, 500);
@@ -466,18 +466,18 @@ void ramp_position_sequence(){
 void up_the_ramp(){
     drive(500, 5000);
     line_grd_follower(0.5, 3700, 3500);
-    stop(1000);
+    //stop(1000);
     turn_left(500, 500);
     drive(500, 3500);
     //stop();
     distSensor(frontSensor, 1000, 1500, 250);
-    stop(1000);
+    stop(500);
     turn_left(500, 350);
     printf("Turn 1 \n");
-    stop(1000);
+    stop(500);
     
     drive(-500, 850);
-    stop(1000);
+    stop(500);
     
     enable_servos();
     set_servo_position(0, 0);
@@ -485,40 +485,40 @@ void up_the_ramp(){
     disable_servos();
     
     drive(500, 500);
-    stop(1000);
+    stop(500);
     turn_right(500, 800);
-    stop(1000);
+    stop(500);
     drive(-500, 1000);
-    stop(1000);
+    stop(500);
     turn_left(500, 900);
-    stop(1000);
+    stop(500);
     drive(500, 1000);
-    stop(1000);
+    stop(500);
     turn_left(500, 1500);
-    stop(1000);
+    stop(500);
 }
 
 void go_to_well(){
     drive(500, 1500);
-    stop(1000);
+    stop(500);
     line_grd_follower(2.5, 3800, 3700);
-    stop(1000);
+    stop(500);
 }
 void get_poms(){
     turn_left(500, 300);
     stop(1000);
     lower_claw_clear(2200);
-    stop(1000);
+    stop(500);
     move_until_sensor_over_poms();
-    stop(1000);
+    stop(500);
     lower_claw_pit(12500);
     stop(1000);
     arm_change(0, 1830, 1, 30);
     stop(1000);
     mav(3, 200);
     msleep(12900);
-    stop(1000);
+    stop(500);
     drive(-500, 2000);
-    stop(1000);
+    stop(500);
     //make robot back up more then open
 }
