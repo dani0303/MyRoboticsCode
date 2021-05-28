@@ -1,4 +1,3 @@
-
 /* Constants for bricks */
 var NUM_ROWS = 8;
 var BRICK_TOP_OFFSET = 10;
@@ -27,34 +26,30 @@ paddle.setPosition(getWidth()/2 - PADDLE_WIDTH/2, getHeight() - PADDLE_OFFSET * 
 var ball;
 var dx = 4;
 var dy = 4;
-var ballElm;
-var brickElm;
 
 var vx;
 var vy;
-
-var gameOver = false;
+var ballElm;
+var brickElm;
 
 
 
 function start(){
-    keyDownMethod(logic);
+    logic();
 }
 
-function logic(e){
-    if(e.keyCode == Keyboard.letter('K')){
-        Ball();
-        add(paddle);
-        setTimer(drawBrick, 2);
-        setTimer(draw, 20);
-        mouseMoveMethod(move);
-        setSpeed();
-    }
+function logic(){
+    Ball();
+    add(paddle);
+    drawBrick();
+    setTimer(draw, 20);
+    mouseMoveMethod(move);
+    setSpeed();
 }
 
 function Ball(){
     ball = new Circle(20);
-	ball.setPosition(100, 100);
+	ball.setPosition(getWidth()/2, getHeight()/2);
 	add(ball);
 }
 
@@ -63,28 +58,27 @@ function move(e){
 }
 
 function drawBrick(){
-    brick = new Rectangle(BRICK_WIDTH, BRICK_HEIGHT);//creates brick
-    brick.setPosition(counterX, counterY);//sets the starting position for the stating row
-    add(brick);
-    counterX += BRICK_WIDTH + BRICK_SPACING;//adds the BRICK_WIDTH + the spacing every iteration
-    if(counterX >= NUM_BRICKS_PER_ROW * 37){//37 is the number of bricks in the 8 rows of bricks
-        counterX = 0 + BRICK_SPACING;
-        counterY += BRICK_HEIGHT + BRICK_SPACING;
-        //colorCounter ++;
+    while(counterY <= NUM_ROWS * 12){
+        brick = new Rectangle(BRICK_WIDTH, BRICK_HEIGHT);//creates brick
+        brick.setPosition(counterX, counterY);//sets the starting position for the stating row
+        add(brick);
+        counterX += BRICK_WIDTH + BRICK_SPACING;//adds the BRICK_WIDTH + the spacing every iteration
+        if(counterX >= NUM_BRICKS_PER_ROW * 37){//37 is the number of bricks in the 8 rows of bricks
+            counterX = 0 + BRICK_SPACING;
+            counterY += BRICK_HEIGHT + BRICK_SPACING;
+            //colorCounter ++;
+        }
+        colorChecker();
+        colorCounter ++;
     }
-    if(counterY >= NUM_ROWS * 12){
-        stopTimer(drawBrick);
-    }
-    colorChecker();
-    colorCounter ++;
 }
 
 function draw(){
-	checkWalls();
+	checkObject();
 	//checkObjects();
 	ball.move(dx, dy);
-	//checkWin();
-	//checkLose();
+	checkWin();
+	checkLose();
 }
 
 function checkWalls(){
@@ -103,16 +97,12 @@ function checkWalls(){
 		dy = -dy;
 	}
 	
-	//Bounces off brick
-	if(ball.getY() - ball.getRadius() < brick.getY()){
-		dy = -dy;
-	}
-	
-	//Bounces off bottom
+	// Bounce off bottom wall
 	if(ball.getY() + ball.getRadius() >= getHeight()){
-	    dy = -dy;
+		stopTimer(draw);
 	}
 	
+	//Bounce off paddle
 	ballElm = getElementAt(ball.getX(), ball.getY() + ball.getRadius());
 	if(ballElm == paddle){
 	    dy = -dy;
@@ -153,15 +143,35 @@ function colorChecker(){
 }
 
 
-function checkObjects(){
-    var elem = getObjectCollision();
+function getCollideObject(){
+    var left = ball.getX() - ball.getRadius();
+    var right = ball.getX() + ball.getRadius();
+    var top = ball.getY() - ball.getRadius();
+    var bottom = ball.getY() + ball.getRadius();
+    var topLeft = getElementAt(left, top);
+    if(topLeft){
+        return topLeft;
+    }
+    var topRight = getElementAt(right, top);
+    if(topRight){
+        return topRight;
+    }
+    var bottomLeft = getElementAt(left, bottom);
+    if(bottomLeft){
+        return bottomLeft;
+    }
+    var bottomRight = getElementAt(right, bottom);
+    if(bottomRight){
+        return bottomRight;
+    }
+}
+
+function checkObject(){
+    var elem = getCollideObject();
     if(elem != null){
         if(elem != paddle){
             remove(elem);
-            vy = -vy;
-            bricksLeft --;
-        }else{
-            vy = -Math.Abs(vy);
+            dy = -dy;
         }
     }
 }
@@ -186,14 +196,5 @@ function checkLose(){
 function checkWin(){
     if(bricksLeft == 0){
         stopTimer(draw);
-        draw(youWin);
     }
 }
-
-
-
-
-
-
-
-
